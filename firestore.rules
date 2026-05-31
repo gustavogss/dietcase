@@ -1,0 +1,138 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Regras para a coleção users
+    match /users/{userId} {
+      // Usuário só pode ler/alterar seu próprio documento
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // Criar usuário apenas se autenticado e for o próprio
+      allow create: if request.auth != null && request.auth.uid == userId
+        && request.resource.data.name is string
+        && request.resource.data.email is string
+        && request.resource.data.plan in ["TRIAL", "ESSENCIAL", "TRANSFORMACAO"];
+    }
+    
+    // Regras para cardápios personalizados (apenas ESSENCIAL e TRANSFORMACAO)
+    match /cardapios/{cardapioId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
+      allow update, delete: if request.auth != null 
+        && resource.data.userId == request.auth.uid
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
+    }
+    
+    // Regras para relatórios (apenas ESSENCIAL e TRANSFORMACAO)
+    match /relatorios/{relatorioId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
+      allow update, delete: if request.auth != null 
+        && resource.data.userId == request.auth.uid
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
+    }
+    
+    // Regras para receitas personalizadas (apenas ESSENCIAL e TRANSFORMACAO)
+    match /receitasPersonalizadas/{receitaId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
+      allow update, delete: if request.auth != null 
+        && resource.data.userId == request.auth.uid
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
+    }
+    
+    // Regras para orquestrador de comorbidades (apenas TRANSFORMACAO)
+    match /orquestradorComorbidades/{orcId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
+      allow update, delete: if request.auth != null 
+        && resource.data.userId == request.auth.uid
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
+    }
+    
+    // Regras para check-in diário (apenas TRANSFORMACAO)
+    match /checkinDiario/{checkinId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
+      allow update, delete: if request.auth != null 
+        && resource.data.userId == request.auth.uid
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
+    }
+    
+    // Regras para score de risco alimentar (apenas TRANSFORMACAO)
+    match /scoreRiscoAlimentar/{scoreId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
+      allow update, delete: if request.auth != null 
+        && resource.data.userId == request.auth.uid
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
+    }
+    
+    // Regras para ajustes automáticos (apenas TRANSFORMACAO)
+    match /ajustesAutomaticos/{ajusteId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
+      allow update, delete: if request.auth != null 
+        && resource.data.userId == request.auth.uid
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
+    }
+    
+    // Regras para relatórios avançados (apenas TRANSFORMACAO)
+    match /relatoriosAvancados/{relatorioId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
+      allow update, delete: if request.auth != null 
+        && resource.data.userId == request.auth.uid
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
+    }
+    
+    // Regras para monitoramento intensivo (apenas TRANSFORMACAO)
+    match /monitoramentoIntensivo/{monitorId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
+      allow update, delete: if request.auth != null 
+        && resource.data.userId == request.auth.uid
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
+    }
+    
+    // Regras para favoritos (apenas ESSENCIAL e TRANSFORMACAO)
+    match /favoritos/{favoritoId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
+      allow update, delete: if request.auth != null 
+        && resource.data.userId == request.auth.uid
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
+    }
+    
+    // Regras para lista de compras (apenas ESSENCIAL e TRANSFORMACAO)
+    match /listaCompras/{listaId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
+      allow update, delete: if request.auth != null 
+        && resource.data.userId == request.auth.uid
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
+    }
+    
+    // Regras para substituições inteligentes (apenas ESSENCIAL e TRANSFORMACAO)
+    match /substituicoes/{substituicaoId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
+      allow update, delete: if request.auth != null 
+        && resource.data.userId == request.auth.uid
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
+    }
+  }
+}

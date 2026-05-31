@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # =====================
+  # PROMETHEUS
+  # =====================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: dietcase-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - monitoring
+
+  # =====================
+  # GRAFANA
+  # =====================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: dietcase-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin # ⚠️ MUDAR EM PRODUÇÃO
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3001
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+    volumes:
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/dashboard-providers:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards/files:ro
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - monitoring
+
+  # =====================
+  # NODE EXPORTER (opcional)
+  # =====================
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: dietcase-node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    driver: bridge
+
+volumes:
+  prometheus-data:
+  grafana-data:

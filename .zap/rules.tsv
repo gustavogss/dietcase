@@ -1,0 +1,15 @@
+# ZAP Baseline Rules
+# Configuração para reduzir falsos positivos
+
+# Ignorar alertas de baixa severidade em assets estáticos
+10011	IGNORE	(Static Content)
+10015	IGNORE	(Re-examine Cache-control Directives)
+
+# Alertas específicos que podem gerar falsos positivos
+10202	IGNORE	(Absence of Anti-CSRF Tokens)
+10038	IGNORE	(Content Security Policy (CSP) Header Not Set)
+
+# Permitir apenas alertas de severidade MEDIUM ou superior
+# WARN: avisos
+# FAIL: falhas críticas
+# IGNORE: ignorar

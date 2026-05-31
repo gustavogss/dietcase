@@ -1,0 +1,66 @@
+groups:
+  - name: auth_alerts
+    interval: 30s
+    rules:
+      # Alta taxa de falhas de login (> 50% nos últimos 5 min)
+      - alert: HighLoginFailureRate
+        expr: |
+          (
+            rate(auth_login_failure_total[5m]) 
+            / 
+            rate(auth_login_attempts_total[5m])
+          ) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          component: authentication
+        annotations:
+          summary: "Alta taxa de falhas de login"
+          description: "{{ $value | humanizePercentage }} dos logins falharam nos últimos 5 minutos"
+
+      # Pico de tentativas de login (possível ataque)
+      - alert: LoginAttemptSpike
+        expr: |
+          rate(auth_login_attempts_total[1m]) > 10
+        for: 2m
+        labels:
+          severity: critical
+          component: authentication
+        annotations:
+          summary: "Pico de tentativas de login detectado"
+          description: "{{ $value }} tentativas/seg nos últimos 2 minutos (possível ataque de força bruta)"
+
+      # Alta latência de autenticação (> 2s)
+      - alert: HighAuthLatency
+        expr: auth_latency_ms_avg > 2000
+        for: 3m
+        labels:
+          severity: warning
+          component: authentication
+        annotations:
+          summary: "Latência alta no processo de autenticação"
+          description: "Latência média de {{ $value }}ms nos últimos 3 minutos"
+
+      # Nenhum signup nos últimos 30 minutos (possível problema)
+      - alert: NoSignupsDetected
+        expr: |
+          rate(auth_signup_total[30m]) == 0
+        for: 30m
+        labels:
+          severity: info
+          component: authentication
+        annotations:
+          summary: "Nenhum signup detectado"
+          description: "Nenhum novo usuário nos últimos 30 minutos"
+
+      # Métrica não atualizada (edge function offline?)
+      - alert: AuthMetricsStale
+        expr: |
+          (time() - auth_login_attempts_total) > 300
+        for: 5m
+        labels:
+          severity: critical
+          component: monitoring
+        annotations:
+          summary: "Métricas de autenticação desatualizadas"
+          description: "Edge function auth-metrics pode estar offline"

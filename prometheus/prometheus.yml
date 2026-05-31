@@ -1,0 +1,46 @@
+# Prometheus Configuration for DietCase Auth Monitoring
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'dietcase-production'
+    app: 'dietcase-builder'
+
+# Alertmanager configuration (opcional)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            # - 'alertmanager:9093'
+
+# Regras de alerta
+rule_files:
+  - '/etc/prometheus/rules/*.yml'
+
+# Scrape configurations
+scrape_configs:
+  # Auth Metrics Edge Function
+  - job_name: 'dietcase-auth'
+    metrics_path: '/auth-metrics/metrics'
+    scheme: 'https'
+    static_configs:
+      - targets:
+          - 'lhwabshbvjpgiyvmkete.supabase.co'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 'lhwabshbvjpgiyvmkete.supabase.co'
+
+  # Node Exporter (se tiver servidor próprio)
+  # - job_name: 'node-exporter'
+  #   static_configs:
+  #     - targets: ['localhost:9100']
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

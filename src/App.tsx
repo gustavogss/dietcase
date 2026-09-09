@@ -15,9 +15,12 @@ import Recommendations from "./pages/Recommendations";
 import Menu from "./pages/Menu";
 import Profile from "./pages/Profile";
 import Favorites from "./pages/Favorites";
+import Recipes from "./pages/Recipes";
+import RecipeFavorites from "./pages/RecipeFavorites";
 import Plans from "./pages/Plans";
 import Subscription from "./pages/Subscription";
 import ShoppingList from "./pages/ShoppingList";
+import Pantry from "./pages/Pantry";
 import Ebooks from "./pages/Ebooks";
 import VirtualNutri from "./pages/VirtualNutri";
 import IAAnalysis from "./pages/IAAnalysis";
@@ -32,6 +35,7 @@ import EstudosResumidos from "./pages/EstudosResumidos";
 import ProtocolosNutricionais from "./pages/ProtocolosNutricionais";
 import EducacaoAlimentar from "./pages/EducacaoAlimentar";
 import PreferenciasNutricionais from "./pages/PreferenciasNutricionais";
+import Restrictions from "./pages/Restrictions";
 import CheckinDiario from "./pages/CheckinDiario";
 import AjustesAutomaticos from "./pages/AjustesAutomaticos";
 import RelatoriosEvolucao from "./pages/RelatoriosEvolucao";
@@ -44,100 +48,122 @@ import { UserAccessProvider } from "@/contexts/UserAccessContext";
 const queryClient = new QueryClient();
 
 const App = () => {
-	return (
-		<ErrorBoundary>
-			<QueryClientProvider client={queryClient}>
-				<ThemeProvider>
-					<TooltipProvider>
-						<UserAccessProvider>
-							<Toaster />
-							<Sonner />
-							<BrowserRouter>
-								<Layout>
-									<AccessGate>
-										<Routes>
-											{/* Página inicial */}
-											<Route path="/" element={<Landing />} />
+  return (
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <TooltipProvider>
+            <UserAccessProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Layout>
+                  <AccessGate>
+                    <Routes>
+                      {/* Página inicial */}
+                      <Route path="/" element={<Landing />} />
 
-											{/* Autenticação */}
-											<Route path="/auth" element={<Auth />} />
-											<Route path="/login" element={<Auth />} />
+                      {/* Autenticação */}
+                      <Route path="/auth" element={<Auth />} />
+                      <Route path="/login" element={<Auth />} />
 
-											{/* Visão Geral */}
-											<Route path="/dashboard" element={<Dashboard />} />
-											<Route path="/status-saude" element={<StatusSaude />} />
-											<Route path="/score-evolucao" element={<ScoreEvolucao />} />
+                      {/* Visão Geral */}
+                      <Route path="/dashboard" element={<Dashboard />} />
+                      <Route path="/status-saude" element={<StatusSaude />} />
+                      <Route
+                        path="/score-evolucao"
+                        element={<ScoreEvolucao />}
+                      />
 
-											{/* Meu Plano Alimentar */}
-											<Route path="/cardapio" element={<Menu />} />
-											<Route path="/favoritos" element={<Favorites />} />
-											<Route path="/lista-compras" element={<ShoppingList />} />
-											<Route
-												path="/recomendacoes"
-												element={<Recommendations />}
-											/>
+                      {/* Meu Plano Alimentar */}
+                      <Route path="/cardapio" element={<Menu />} />
+                      <Route path="/cardapio-semanal" element={<Menu />} />
+                      <Route path="/favoritos" element={<Favorites />} />
+                      <Route path="/receitas" element={<Recipes />} />
+                      <Route
+                        path="/receitas-inteligentes"
+                        element={<Recipes />}
+                      />
+                      <Route
+                        path="/receitas-favoritas"
+                        element={<RecipeFavorites />}
+                      />
+                      <Route path="/lista-compras" element={<ShoppingList />} />
+                      <Route path="/despensa" element={<Pantry />} />
+                      <Route path="/estoque" element={<Pantry />} />
+                      <Route
+                        path="/recomendacoes"
+                        element={<Recommendations />}
+                      />
 
-											{/* Acompanhamento Inteligente */}
-											<Route path="/chat-nutri" element={<VirtualNutri />} />
-											<Route path="/progresso-ia" element={<IAAnalysis />} />
-											<Route path="/checkin-diario" element={<CheckinDiario />} />
-											<Route
-												path="/ajustes-automaticos"
-												element={<AjustesAutomaticos />}
-											/>
-											<Route
-												path="/menu-restaurante"
-												element={<MenuRestaurante />}
-											/>
-											<Route
-												path="/relatorios-evolucao"
-												element={<RelatoriosEvolucao />}
-											/>
-											<Route
-												path="/score-aderencia"
-												element={<ScoreAderencia />}
-											/>
+                      {/* Acompanhamento Inteligente */}
+                      <Route path="/chat-nutri" element={<VirtualNutri />} />
+                      <Route path="/progresso-ia" element={<IAAnalysis />} />
+                      <Route
+                        path="/checkin-diario"
+                        element={<CheckinDiario />}
+                      />
+                      <Route
+                        path="/ajustes-automaticos"
+                        element={<AjustesAutomaticos />}
+                      />
+                      <Route
+                        path="/menu-restaurante"
+                        element={<MenuRestaurante />}
+                      />
+                      <Route
+                        path="/relatorios-evolucao"
+                        element={<RelatoriosEvolucao />}
+                      />
+                      <Route
+                        path="/score-aderencia"
+                        element={<ScoreAderencia />}
+                      />
 
-											{/* Biblioteca */}
-											<Route path="/ebooks" element={<Ebooks />} />
-											<Route
-												path="/guias-cientificos"
-												element={<GuiasCientificos />}
-											/>
-											<Route
-												path="/estudos-resumidos"
-												element={<EstudosResumidos />}
-											/>
-											<Route
-												path="/protocolos-nutricionais"
-												element={<ProtocolosNutricionais />}
-											/>
-											<Route
-												path="/educacao-alimentar"
-												element={<EducacaoAlimentar />}
-											/>
+                      {/* Biblioteca */}
+                      <Route path="/ebooks" element={<Ebooks />} />
+                      <Route
+                        path="/guias-cientificos"
+                        element={<GuiasCientificos />}
+                      />
+                      <Route
+                        path="/estudos-resumidos"
+                        element={<EstudosResumidos />}
+                      />
+                      <Route
+                        path="/protocolos-nutricionais"
+                        element={<ProtocolosNutricionais />}
+                      />
+                      <Route
+                        path="/educacao-alimentar"
+                        element={<EducacaoAlimentar />}
+                      />
 
-											{/* Conta */}
-											<Route path="/perfil" element={<Profile />} />
-											<Route
-												path="/preferencias-nutricionais"
-												element={<PreferenciasNutricionais />}
-											/>
-											<Route path="/assinatura" element={<Subscription />} />
-											<Route path="/planos" element={<Plans />} />
+                      {/* Conta */}
+                      <Route path="/perfil" element={<Profile />} />
+                      <Route
+                        path="/restricoes-alimentares"
+                        element={<Restrictions />}
+                      />
+                      <Route
+                        path="/preferencias-nutricionais"
+                        element={<PreferenciasNutricionais />}
+                      />
+                      <Route path="/assinatura" element={<Subscription />} />
+                      <Route path="/planos" element={<Plans />} />
 
-											{/* Página não encontrada */}
-											<Route path="*" element={<NotFound />} />
-										</Routes>
-									</AccessGate>
-								</Layout>
-							</BrowserRouter>
-						</UserAccessProvider>
-					</TooltipProvider>
-				</ThemeProvider>
-			</QueryClientProvider>
-		</ErrorBoundary>
-	);
+                      {/* Página não encontrada */}
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </AccessGate>
+                </Layout>
+              </BrowserRouter>
+            </UserAccessProvider>
+          </TooltipProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
 };
 
 export default App;

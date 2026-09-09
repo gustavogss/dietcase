@@ -14,7 +14,6 @@ interface GoalsChartProps {
 }
 
 export function GoalsChart({ goals }: GoalsChartProps) {
-  if (!goals) return null;
   const [dateRange, setDateRange] = useState<{
     from: Date | undefined;
     to: Date | undefined;
@@ -22,6 +21,8 @@ export function GoalsChart({ goals }: GoalsChartProps) {
     from: new Date(new Date().setMonth(new Date().getMonth() - 1)),
     to: new Date(),
   });
+
+  if (!goals) return null;
 
   // Filtrar metas pelo período selecionado
   const filteredGoals = goals.filter((goal) => {

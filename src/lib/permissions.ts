@@ -4,16 +4,17 @@ import type { PlanType, FeatureType } from "@/types";
 export const PLAN_PERMISSIONS: Record<PlanType, FeatureType[]> = {
   TRIAL: [
     "dashboard",
-    "health_status", 
+    "health_status",
     "score_basico",
     "cardapio_fixo",
-    "biblioteca"
+    "biblioteca",
+    "favoritar",
   ],
-  
+
   ESSENCIAL: [
     "dashboard",
     "health_status",
-    "score_basico", 
+    "score_basico",
     "cardapio_fixo",
     "biblioteca",
     "cardapio_semanal",
@@ -23,14 +24,14 @@ export const PLAN_PERMISSIONS: Record<PlanType, FeatureType[]> = {
     "lista_compras",
     "download_pdf",
     "compartilhar",
-    "relatorios"
+    "relatorios",
   ],
-  
+
   TRANSFORMACAO: [
     "dashboard",
     "health_status",
     "score_basico",
-    "cardapio_fixo", 
+    "cardapio_fixo",
     "biblioteca",
     "cardapio_semanal",
     "receitas_personalizadas",
@@ -45,12 +46,12 @@ export const PLAN_PERMISSIONS: Record<PlanType, FeatureType[]> = {
     "ajustes_automaticos",
     "checkin_diario",
     "relatorios_avancados",
-    "monitoramento_intensivo"
-  ]
+    "monitoramento_intensivo",
+  ],
 };
 
 // Normaliza plano (ex.: "Transformação" / "Essencial" vindos do perfil) para chave do mapa
-function normalizePlanKey(plan: PlanType | string): PlanType {
+function normalizePlanKey(plan: PlanType): PlanType {
   const p = String(plan);
   if (p === "Transformação" || p === "TRANSFORMACAO") return "TRANSFORMACAO";
   if (p === "Essencial" || p === "ESSENCIAL") return "ESSENCIAL";
@@ -141,35 +142,35 @@ export function getPlanDisplayInfo(plan: PlanType, trialExpiresAt?: string) {
         textColor: "text-orange-600",
         borderColor: "border-orange-200",
         showCountdown: true,
-        daysRemaining
+        daysRemaining,
       };
     }
-    
+
     case "ESSENCIAL":
       return {
         label: "Plano Essencial",
-        color: "bg-blue-500", 
+        color: "bg-blue-500",
         textColor: "text-blue-600",
         borderColor: "border-blue-200",
-        showCountdown: false
+        showCountdown: false,
       };
-    
+
     case "TRANSFORMACAO":
       return {
         label: "Plano Transformação",
         color: "bg-purple-500",
-        textColor: "text-purple-600", 
+        textColor: "text-purple-600",
         borderColor: "border-purple-200",
-        showCountdown: false
+        showCountdown: false,
       };
-    
+
     default:
       return {
         label: "Plano Desconhecido",
         color: "bg-gray-500",
         textColor: "text-gray-600",
-        borderColor: "border-gray-200", 
-        showCountdown: false
+        borderColor: "border-gray-200",
+        showCountdown: false,
       };
   }
 }

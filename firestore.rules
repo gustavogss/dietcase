@@ -17,8 +17,9 @@ service cloud.firestore {
     
     // Regras para cardápios personalizados (apenas ESSENCIAL e TRANSFORMACAO)
     match /cardapios/{cardapioId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null 
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
       allow update, delete: if request.auth != null 
         && resource.data.userId == request.auth.uid
@@ -28,9 +29,10 @@ service cloud.firestore {
     // Regras para relatórios (apenas ESSENCIAL e TRANSFORMACAO)
     match /relatorios/{relatorioId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null 
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
-      allow update, delete: if request.auth != null 
+      allow update, delete: if request.auth != null
         && resource.data.userId == request.auth.uid
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
     }
@@ -38,7 +40,8 @@ service cloud.firestore {
     // Regras para receitas personalizadas (apenas ESSENCIAL e TRANSFORMACAO)
     match /receitasPersonalizadas/{receitaId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null 
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
       allow update, delete: if request.auth != null 
         && resource.data.userId == request.auth.uid
@@ -48,9 +51,10 @@ service cloud.firestore {
     // Regras para orquestrador de comorbidades (apenas TRANSFORMACAO)
     match /orquestradorComorbidades/{orcId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null 
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
-      allow update, delete: if request.auth != null 
+      allow update, delete: if request.auth != null
         && resource.data.userId == request.auth.uid
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
     }
@@ -58,7 +62,8 @@ service cloud.firestore {
     // Regras para check-in diário (apenas TRANSFORMACAO)
     match /checkinDiario/{checkinId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null 
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
       allow update, delete: if request.auth != null 
         && resource.data.userId == request.auth.uid
@@ -68,9 +73,10 @@ service cloud.firestore {
     // Regras para score de risco alimentar (apenas TRANSFORMACAO)
     match /scoreRiscoAlimentar/{scoreId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null 
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
-      allow update, delete: if request.auth != null 
+      allow update, delete: if request.auth != null
         && resource.data.userId == request.auth.uid
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
     }
@@ -79,6 +85,7 @@ service cloud.firestore {
     match /ajustesAutomaticos/{ajusteId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
       allow update, delete: if request.auth != null 
         && resource.data.userId == request.auth.uid
@@ -89,6 +96,7 @@ service cloud.firestore {
     match /relatoriosAvancados/{relatorioId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
       allow update, delete: if request.auth != null 
         && resource.data.userId == request.auth.uid
@@ -99,6 +107,7 @@ service cloud.firestore {
     match /monitoramentoIntensivo/{monitorId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
       allow update, delete: if request.auth != null 
         && resource.data.userId == request.auth.uid
@@ -109,30 +118,70 @@ service cloud.firestore {
     match /favoritos/{favoritoId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null 
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
+        && request.resource.data.userId == request.auth.uid
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["TRIAL", "ESSENCIAL", "TRANSFORMACAO"];
       allow update, delete: if request.auth != null 
         && resource.data.userId == request.auth.uid
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["TRIAL", "ESSENCIAL", "TRANSFORMACAO"];
+    }
+
+    // Catálogo de receitas mantido no Firestore; clientes autenticados podem ler.
+    match /recipes/{recipeId} {
+      allow read: if request.auth != null;
+      allow write: if false;
     }
     
     // Regras para lista de compras (apenas ESSENCIAL e TRANSFORMACAO)
     match /listaCompras/{listaId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
       allow update, delete: if request.auth != null 
         && resource.data.userId == request.auth.uid
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
     }
+
+    // Despensa do usuário: Firestore é a fonte de verdade dos itens persistentes
+    match /pantryItems/{itemId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+    }
     
     // Regras para substituições inteligentes (apenas ESSENCIAL e TRANSFORMACAO)
     match /substituicoes/{substituicaoId} {
-      allow read: if request.auth != null;
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
       allow update, delete: if request.auth != null 
         && resource.data.userId == request.auth.uid
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan in ["ESSENCIAL", "TRANSFORMACAO"];
+    }
+
+    // Regras para conversas do chat nutricional (apenas TRANSFORMACAO)
+    match /nutri_conversations/{convId} {
+      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
+    }
+
+    // Regras para mensagens do chat nutricional (apenas TRANSFORMACAO)
+    match /nutri_messages/{msgId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
+      allow update, delete: if request.auth != null 
+        && resource.data.userId == request.auth.uid
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.plan == "TRANSFORMACAO";
     }
   }
 }

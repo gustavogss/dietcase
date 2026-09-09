@@ -1,52 +1,57 @@
-import { useState, useEffect } from 'react';
-import type { FavoriteMeal, Meal, MealType } from '@/types';
-
-const FAVORITES_KEY = 'dietcase-favorite-meals';
+import { useState, useEffect } from "react";
+import type { FavoriteMeal, Meal, MealType } from "@/types";
+import {
+  addMealFavorite,
+  deleteRecipeFavorite,
+  listMealFavorites,
+} from "@/services/recipe.repository";
 
 export function useFavorites() {
   const [favorites, setFavorites] = useState<FavoriteMeal[]>([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem(FAVORITES_KEY);
-    if (saved) {
-      try {
-        setFavorites(JSON.parse(saved));
-      } catch (e) {
-        console.error('Failed to parse favorites', e);
-        setFavorites([]);
-      }
-    }
+    let isMounted = true;
+    void listMealFavorites()
+      .then((storedFavorites) => {
+        if (isMounted) setFavorites(storedFavorites);
+      })
+      .catch((error) => console.error("Erro ao carregar favoritos", error));
+    return () => {
+      isMounted = false;
+    };
   }, []);
-
-  const saveFavorites = (newFavorites: FavoriteMeal[]) => {
-    setFavorites(newFavorites);
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(newFavorites));
-  };
 
   const addFavorite = (
     meal: Meal,
     mealType: MealType,
     menuId: string,
-    menuName: string
+    menuName: string,
   ) => {
-    const newFavorite: FavoriteMeal = {
-      id: `${menuId}-${mealType}-${Date.now()}`,
-      meal,
-      mealType,
-      menuId,
-      menuName,
-      addedAt: new Date().toISOString(),
-    };
-    saveFavorites([...favorites, newFavorite]);
+    void addMealFavorite(meal, mealType, menuId, menuName)
+      .then((newFavorite) =>
+        setFavorites((current) => [...current, newFavorite]),
+      )
+      .catch((error) => console.error("Erro ao salvar favorito", error));
   };
 
   const removeFavorite = (id: string) => {
-    saveFavorites(favorites.filter((f) => f.id !== id));
+    const handleRemoved = () => {
+      setFavorites((current) =>
+        current.filter((favorite) => favorite.id !== id),
+      );
+    };
+
+    void deleteRecipeFavorite(id)
+      .then(handleRemoved)
+      .catch((error) => console.error("Erro ao remover favorito", error));
   };
 
   const isFavorite = (meal: Meal, mealType: MealType, menuId: string) => {
     return favorites.some(
-      (f) => f.meal.name === meal.name && f.mealType === mealType && f.menuId === menuId
+      (f) =>
+        f.meal.name === meal.name &&
+        f.mealType === mealType &&
+        f.menuId === menuId,
     );
   };
 

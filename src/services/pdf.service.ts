@@ -1,10 +1,17 @@
-import type { UserProfile, WeeklyMenu, Recommendation, PlanType } from '@/types';
-import { plans } from '@/data/mocks';
-import { renderToString } from 'react-dom/server';
-import { createElement } from 'react';
-import { DietPdfTemplate } from '@/components/pdf/DietPdfTemplate';
-import { EbookCollection } from '@/data/ebooks';
-import { EbookPdfTemplate } from '@/components/pdf/EbookPdfTemplate';
+import type {
+  UserProfile,
+  WeeklyMenu,
+  Recommendation,
+  PlanType,
+} from "@/types";
+import { plans } from "@/data/mocks";
+import { renderToString } from "react-dom/server";
+import { createElement } from "react";
+import { DietPdfTemplate } from "@/components/pdf/DietPdfTemplate";
+import { EbookCollection } from "@/data/ebooks";
+import { EbookPdfTemplate } from "@/components/pdf/EbookPdfTemplate";
+import { RecipePdfTemplate } from "@/components/pdf/RecipePdfTemplate";
+import type { Recipe } from "@/types";
 
 /**
  * Verifica se o PDF está disponível para o plano do usuário
@@ -26,18 +33,46 @@ export function hasExtraPdfs(planType: PlanType): boolean {
  * Gera o nome do arquivo PDF
  */
 export function generatePdfFilename(userName: string): string {
-  const date = new Date().toISOString().split('T')[0];
-  const sanitizedName = userName.replace(/\s+/g, '_');
+  const date = new Date().toISOString().split("T")[0];
+  const sanitizedName = userName.replace(/\s+/g, "_");
   return `DietCase_Dieta_${sanitizedName}_${date}.pdf`;
 }
 
 export function generateEbookFilename(ebookTitle: string): string {
-  const sanitizedTitle = ebookTitle.replace(/\s+/g, '_').replace(/[:]/g, '');
+  const sanitizedTitle = ebookTitle.replace(/\s+/g, "_").replace(/[:]/g, "");
   return `DietCase_Ebook_${sanitizedTitle}.pdf`;
 }
 
+export function generateRecipeFilename(recipeName: string): string {
+  const sanitizedName = recipeName.replace(/\s+/g, "_").replace(/[^\w-]/g, "");
+  return `DietCase_Receita_${sanitizedName}.pdf`;
+}
+
+export function downloadRecipePdf(recipe: Recipe): Promise<void> {
+  return new Promise((resolve, reject) => {
+    try {
+      const htmlString = renderToString(
+        createElement(RecipePdfTemplate, { recipe }),
+      );
+      printHtml(
+        htmlString,
+        generateRecipeFilename(recipe.name),
+        resolve,
+        reject,
+      );
+    } catch (error) {
+      console.error("Erro ao gerar PDF da receita:", error);
+      reject(error);
+    }
+  });
+}
+
+export function printRecipe(recipe: Recipe): Promise<void> {
+  return downloadRecipePdf(recipe);
+}
+
 /**
-* Gera e baixa o PDF usando window.print
+ * Gera e baixa o PDF usando window.print
  */
 export function downloadPdf(
   profile: UserProfile,
@@ -55,7 +90,7 @@ export function downloadPdf(
       const htmlString = renderToString(pdfComponent);
       printHtml(htmlString, generatePdfFilename(profile.name), resolve, reject);
     } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
+      console.error("Erro ao gerar PDF:", error);
       reject(error);
     }
   });
@@ -72,9 +107,14 @@ export function downloadEbookPdf(collection: EbookCollection): Promise<void> {
       });
 
       const htmlString = renderToString(pdfComponent);
-      printHtml(htmlString, generateEbookFilename(collection.title), resolve, reject);
+      printHtml(
+        htmlString,
+        generateEbookFilename(collection.title),
+        resolve,
+        reject,
+      );
     } catch (error) {
-      console.error('Erro ao gerar PDF do Ebook:', error);
+      console.error("Erro ao gerar PDF do Ebook:", error);
       reject(error);
     }
   });
@@ -87,12 +127,12 @@ function printHtml(
   htmlString: string,
   title: string,
   resolve: () => void,
-  reject: (error: Error) => void
+  reject: (error: Error) => void,
 ) {
-  const printWindow = window.open('', '_blank');
+  const printWindow = window.open("", "_blank");
 
   if (!printWindow) {
-    reject(new Error('Pop-up bloqueado. Permita pop-ups para baixar o PDF.'));
+    reject(new Error("Pop-up bloqueado. Permita pop-ups para baixar o PDF."));
     return;
   }
 
@@ -163,7 +203,7 @@ export function validatePdfDownload(planType: PlanType): {
   if (!isPdfAvailable(planType)) {
     return {
       canDownload: false,
-      message: 'O download de PDF não está disponível no seu plano atual.',
+      message: "O download de PDF não está disponível no seu plano atual.",
     };
   }
 

@@ -63,7 +63,7 @@ export function Contact() {
         description: 'Em breve retornaremos seu contato (Simulação).',
       });
       setFormData({ name: '', email: '', message: '' });
-    } catch (error: any) {
+    } catch {
       toast.error('Erro ao enviar mensagem', {
         description: 'Tente novamente mais tarde.',
       });

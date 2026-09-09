@@ -21,11 +21,9 @@ const NotFound = () => {
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Button variant="outline" asChild size="lg" className="inline-flex items-center justify-center gap-2">
-            <Link to={-1 as any}>
-              <ArrowLeft className="h-4 w-4 shrink-0" />
-              Voltar
-            </Link>
+          <Button onClick={() => navigate(-1)} variant="outline" size="lg" className="inline-flex items-center justify-center gap-2">
+            <ArrowLeft className="h-4 w-4 shrink-0" />
+            Voltar
           </Button>
           <Button asChild size="lg" className="inline-flex items-center justify-center gap-2">
             <Link to="/">
